@@ -1,0 +1,37 @@
+{
+	"name": "打卡伴",
+	"appid": "__UNI__A5F11F1",
+	"description": "通用日程打卡与亲友协同工具",
+	"versionName": "1.0.0",
+	"versionCode": "100",
+	"transformPx": false,
+	"uni-app-x": {},
+	"quickapp": {},
+	"mp-weixin": {
+		"appid": "wx51726d5487ff8603",
+		"setting": {
+			"urlCheck": false
+		},
+		"usingComponents": true,
+		"permission": {},
+		"plugins": {},
+		"cloud": true,
+		"cloudfunctionRoot": "cloudfunctions/",
+		"unipush": {
+			"enable": false
+		}
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "3"
+}
