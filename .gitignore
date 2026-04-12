@@ -1,0 +1,43 @@
+# ============================================
+# 打卡伴 (daka-ban) Git Ignore
+# 只上传 code/ 目录到 GitHub
+# ============================================
+
+# ---- 依赖 / 构建产物 ----
+node_modules/
+dist/
+unpackage/
+.hvigor/
+
+# ---- IDE 配置 ----
+.idea/
+.vscode/
+*.iml
+.claude/
+.cursor/
+.copilot/
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 日志 ----
+*.log
+npm-debug.log*
+
+# ---- 环境变量 / 密钥 ----
+.env
+.env.local
+.env.*.local
+
+# ---- 临时文件 ----
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# ---- 只上传 code/ 文件夹，其他都忽略 ----
+/*
+!code/
+!.gitignore

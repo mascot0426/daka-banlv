@@ -1,0 +1,67 @@
+﻿{
+  "cloud": true,
+  "cloudfunctionRoot": "cloudfunctions/",
+  "pages": [
+    "pages/checkin/index",
+    "pages/data/index",
+    "pages/collab/index",
+    "pages/wish/index",
+    "pages/mine/index",
+    "pages/checkin/calendar",
+    "pages/checkin/create",
+    "pages/checkin/detail",
+    "pages/collab/dashboard",
+    "pages/collab/invite",
+    "pages/collab/join",
+    "pages/collab/auth-config",
+    "pages/mine/notification",
+    "pages/mine/privacy",
+    "pages/mine/delete-account",
+    "pages/privacy-modal/index"
+  ],
+  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "color": "#9AA5BE",
+    "list": [
+      {
+        "iconPath": "static/logo.png",
+        "pagePath": "pages/checkin/index",
+        "selectedIconPath": "static/logo.png",
+        "text": "\u6253\u5361"
+      },
+      {
+        "iconPath": "static/logo.png",
+        "pagePath": "pages/data/index",
+        "selectedIconPath": "static/logo.png",
+        "text": "\u6570\u636e"
+      },
+      {
+        "iconPath": "static/logo.png",
+        "pagePath": "pages/collab/index",
+        "selectedIconPath": "static/logo.png",
+        "text": "\u534f\u540c"
+      },
+      {
+        "iconPath": "static/logo.png",
+        "pagePath": "pages/wish/index",
+        "selectedIconPath": "static/logo.png",
+        "text": "\u5fc3\u613f"
+      },
+      {
+        "iconPath": "static/logo.png",
+        "pagePath": "pages/mine/index",
+        "selectedIconPath": "static/logo.png",
+        "text": "\u6211\u7684"
+      }
+    ],
+    "selectedColor": "#4F7CFF"
+  },
+  "window": {
+    "backgroundColor": "#F5F6FA",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "\u6253\u5361\u4f34"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "login",
+  "version": "1.0.0",
+  "description": "打卡伴 - 登录云函数，获取 openid 并初始化用户记录",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "license": "ISC"
+}

@@ -1,0 +1,174 @@
+{
+  "pages": [
+    {
+      "path": "pages/checkin/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "今日打卡"
+      }
+    },
+    {
+      "path": "pages/data/index",
+      "style": {
+        "navigationBarTitleText": "数据",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/collab/index",
+      "style": {
+        "navigationBarTitleText": "协同",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/wish/index",
+      "style": {
+        "navigationBarTitleText": "心愿",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/checkin/calendar",
+      "style": {
+        "navigationBarTitleText": "打卡日历",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/checkin/create",
+      "style": {
+        "navigationBarTitleText": "新建打卡事项",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/checkin/detail",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "事项详情"
+      }
+    },
+    {
+      "path": "pages/collab/dashboard",
+      "style": {
+        "navigationBarTitleText": "亲友打卡看板",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/collab/invite",
+      "style": {
+        "navigationBarTitleText": "邀请亲友",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/collab/join",
+      "style": {
+        "navigationBarTitleText": "加入协同",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/collab/auth-config",
+      "style": {
+        "navigationBarTitleText": "授权配置",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/mine/notification",
+      "style": {
+        "navigationBarTitleText": "通知中心",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/mine/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私设置",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/mine/delete-account",
+      "style": {
+        "navigationBarTitleText": "注销账号",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/privacy-modal/index",
+      "style": {
+        "navigationBarTitleText": "隐私协议",
+        "navigationBarBackgroundColor": "#FFFFFF",
+        "navigationBarTextStyle": "black"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#9AA5BE",
+    "selectedColor": "#4F7CFF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/checkin/index",
+        "text": "打卡",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/data/index",
+        "text": "数据",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/collab/index",
+        "text": "协同",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/wish/index",
+        "text": "心愿",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "打卡伴",
+    "backgroundColor": "#F5F6FA"
+  }
+}
