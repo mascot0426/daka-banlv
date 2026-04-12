@@ -49,7 +49,11 @@ function queryCode() {
 function reject() {
   // TODO: 调用云函数记录拒绝，通知对方
   uni.showToast({ title: '已拒绝', icon: 'none' })
-  setTimeout(() => uni.navigateBack(), 1000)
+  setTimeout(() => {
+    const pages = getCurrentPages()
+    if (pages.length > 1) uni.navigateBack()
+    else uni.reLaunch({ url: '/pages/checkin/index' })
+  }, 1000)
 }
 
 function confirm() {

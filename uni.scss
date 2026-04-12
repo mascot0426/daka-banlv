@@ -130,3 +130,40 @@ $dk-font-2xl:  40rpx;
 // 常用阴影
 $dk-shadow-card: 0 4rpx 20rpx rgba(79, 124, 255, 0.08);
 $dk-shadow-sm:   0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+
+// 全局复用类（页面可直接使用）
+.dk-page {
+  min-height: 100vh;
+  background: $dk-bg;
+  box-sizing: border-box;
+}
+
+.dk-card {
+  background: $dk-card;
+  border: 1rpx solid $dk-divider;
+  border-radius: $dk-radius-card;
+  box-shadow: $dk-shadow-sm;
+}
+
+.dk-section-title {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: $dk-font-lg;
+  font-weight: 800;
+  color: $dk-text-primary;
+}
+
+.dk-text-sub {
+  font-size: $dk-font-sm;
+  color: $dk-text-second;
+  line-height: 1.5;
+}
+
+.dk-text-xs {
+  font-size: $dk-font-xs;
+  color: $dk-text-disable;
+}
+
+.dk-empty__icon {
+  font-size: 56rpx;
+}

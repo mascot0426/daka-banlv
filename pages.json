@@ -3,9 +3,8 @@
     {
       "path": "pages/checkin/index",
       "style": {
-        "navigationBarTitleText": "打卡",
-        "navigationBarBackgroundColor": "#FFFFFF",
-        "navigationBarTextStyle": "black"
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "今日打卡"
       }
     },
     {
@@ -59,9 +58,8 @@
     {
       "path": "pages/checkin/detail",
       "style": {
-        "navigationBarTitleText": "事项详情",
-        "navigationBarBackgroundColor": "#FFFFFF",
-        "navigationBarTextStyle": "black"
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "事项详情"
       }
     },
     {

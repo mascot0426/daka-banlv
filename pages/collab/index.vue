@@ -1,7 +1,5 @@
 <template>
-  <view class="page">
-    <!-- S8: 协同主页 -->
-
+  <view class="page dk-page">
     <view v-if="!privacyAgreed" class="privacy-tip-card">
       <text class="privacy-tip-title">协同功能暂不可用</text>
       <text class="dk-text-sub">请先同意隐私保护指引后再使用亲友协同功能</text>
@@ -46,6 +44,7 @@
         <text class="dk-empty__icon">👥</text>
         <text class="dk-text-sub">还没有绑定的亲友</text>
       </view>
+
       <view v-for="binding in bindings" :key="binding._id" class="friend-card" @tap="goBoard(binding)">
         <view class="friend-avatar">
           <image v-if="binding.avatarUrl" :src="binding.avatarUrl" class="avatar-img" />
@@ -82,111 +81,70 @@ const privacyAgreed = ref(true)
 function ensurePrivacyAgreed(showTip = true) {
   const agreed = uni.getStorageSync('privacyAgreed') === true
   privacyAgreed.value = agreed
-
-  if (!agreed && showTip) {
-    uni.showToast({
-      title: '请先同意隐私保护指引后再使用协同功能',
-      icon: 'none'
-    })
-  }
-
+  if (!agreed && showTip) uni.showToast({ title: '请先同意隐私保护指引后再使用协同功能', icon: 'none' })
   return agreed
 }
+function confirmInvite(invite) { if (!ensurePrivacyAgreed()) return; uni.navigateTo({ url: `/pages/collab/join?code=${invite.inviteCode}` }) }
+function rejectInvite() { if (!ensurePrivacyAgreed()) return; uni.showToast({ title: '已拒绝', icon: 'none' }) }
+function confirmTodo() { if (!ensurePrivacyAgreed()) return; uni.showToast({ title: '已接受', icon: 'success' }) }
+function rejectTodo() { if (!ensurePrivacyAgreed()) return; uni.showToast({ title: '已拒绝', icon: 'none' }) }
+function goBoard(binding) { if (!ensurePrivacyAgreed()) return; uni.navigateTo({ url: `/pages/collab/dashboard?bindingId=${binding._id}` }) }
+function goInvite() { if (!ensurePrivacyAgreed()) return; uni.navigateTo({ url: '/pages/collab/invite' }) }
 
-function confirmInvite(invite) {
-  if (!ensurePrivacyAgreed()) return
-  uni.navigateTo({ url: `/pages/collab/join?code=${invite.inviteCode}` })
-}
-
-function rejectInvite() {
-  if (!ensurePrivacyAgreed()) return
-  uni.showToast({ title: '已拒绝', icon: 'none' })
-}
-
-function confirmTodo() {
-  if (!ensurePrivacyAgreed()) return
-  uni.showToast({ title: '已接受', icon: 'success' })
-}
-
-function rejectTodo() {
-  if (!ensurePrivacyAgreed()) return
-  uni.showToast({ title: '已拒绝', icon: 'none' })
-}
-
-function goBoard(binding) {
-  if (!ensurePrivacyAgreed()) return
-  uni.navigateTo({ url: `/pages/collab/dashboard?bindingId=${binding._id}` })
-}
-
-function goInvite() {
-  if (!ensurePrivacyAgreed()) return
-  uni.navigateTo({ url: '/pages/collab/invite' })
-}
-
-onShow(() => {
-  ensurePrivacyAgreed(false)
-})
-
+onShow(() => ensurePrivacyAgreed(false))
 onMounted(() => {
   // TODO: 从云数据库加载绑定关系与待处理消息
 })
 </script>
 
-<style scoped>
-.page { min-height: 100vh; background: #F8F9FB; padding: 24rpx; }
+<style scoped lang="scss">
+@import "@/uni.scss";
+
+.page { padding: 24rpx; }
 .section { margin-bottom: 32rpx; }
+
 .privacy-tip-card {
-  margin-bottom: 24rpx;
-  padding: 24rpx;
-  border-radius: 20rpx;
-  background: #FFF5E6;
-  border: 2rpx solid #FDDCAA;
+  margin-bottom: 24rpx; padding: 24rpx;
+  border-radius: 20rpx; background: $dk-warn-light; border: 2rpx solid #FDDCAA;
 }
-.privacy-tip-title {
-  margin-bottom: 6rpx;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #1A2033;
-}
-.msg-card {
-  border-radius: 32rpx; padding: 28rpx 24rpx;
-  margin-bottom: 16rpx; display: flex; flex-direction: column; gap: 20rpx;
-}
-.msg-card--blue   { background: #EEF2FF; border: 2rpx solid #C7D2FE; }
-.msg-card--orange { background: #FFF5E6; border: 2rpx solid #FDDCAA; }
-.msg-left  { display: flex; align-items: flex-start; gap: 16rpx; }
-.msg-icon  { font-size: 40rpx; flex-shrink: 0; }
-.msg-body  { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-.msg-title { font-size: 28rpx; font-weight: 700; color: #1A2033; }
-.msg-actions { display: flex; gap: 16rpx; justify-content: flex-end; }
-.msg-btn {
-  padding: 14rpx 32rpx; border-radius: 24rpx;
-  font-size: 26rpx; font-weight: 600;
-}
-.msg-btn--gray { background: #F0F2F7; color: #4A5568; }
-.msg-btn--blue { background: #4F7CFF; color: #FFFFFF; }
-.empty-collab { display: flex; flex-direction: column; align-items: center; padding: 60rpx; gap: 16rpx; }
+.privacy-tip-title { margin-bottom: 6rpx; font-size: $dk-font-base; font-weight: 700; color: $dk-text-primary; }
+
+.msg-card { border-radius: 32rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; display:flex; flex-direction:column; gap:20rpx; }
+.msg-card--blue { background: $dk-brand-light; border:2rpx solid #C7D2FE; }
+.msg-card--orange { background: $dk-warn-light; border:2rpx solid #FDDCAA; }
+.msg-left { display:flex; align-items:flex-start; gap:16rpx; }
+.msg-icon { font-size: 40rpx; }
+.msg-body { flex:1; display:flex; flex-direction:column; gap:4rpx; }
+.msg-title { font-size: $dk-font-base; font-weight: 700; color: $dk-text-primary; }
+.msg-actions { display:flex; gap:16rpx; justify-content:flex-end; }
+
+.msg-btn { padding:14rpx 32rpx; border-radius:24rpx; font-size:26rpx; font-weight:600; }
+.msg-btn--gray { background:$dk-divider; color:#4A5568; }
+.msg-btn--blue { background:$dk-brand; color:#fff; }
+
+.empty-collab { display:flex; flex-direction:column; align-items:center; padding:60rpx; gap:16rpx; }
+
 .friend-card {
-  display: flex; align-items: center;
-  background: #FFFFFF; border-radius: 32rpx;
-  padding: 24rpx; margin-bottom: 16rpx;
-  border: 2rpx solid #F0F2F7; gap: 16rpx;
+  display:flex; align-items:center; gap:16rpx;
+  background:#fff; border-radius:32rpx; padding:24rpx; margin-bottom:16rpx;
+  border:2rpx solid $dk-divider; box-shadow:$dk-shadow-sm;
 }
-.avatar-img { width: 80rpx; height: 80rpx; border-radius: 50%; }
+.avatar-img { width:80rpx; height:80rpx; border-radius:50%; }
 .avatar-ph {
-  width: 80rpx; height: 80rpx; border-radius: 50%;
-  background: #EEF2FF; display: flex; align-items: center;
-  justify-content: center; font-size: 32rpx; color: #4F7CFF; font-weight: 700;
+  width:80rpx; height:80rpx; border-radius:50%;
+  background:$dk-brand-light; color:$dk-brand;
+  display:flex; align-items:center; justify-content:center;
+  font-size:32rpx; font-weight:700;
 }
-.friend-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; }
-.friend-name { font-size: 28rpx; font-weight: 700; color: #1A2033; }
-.friend-stats { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; gap: 2rpx; }
-.stats-rate { font-size: 28rpx; font-weight: 800; color: #4F7CFF; }
-.chevron { font-size: 36rpx; color: #C8CFDE; flex-shrink: 0; }
+.friend-info { flex:1; display:flex; flex-direction:column; gap:4rpx; }
+.friend-name { font-size:$dk-font-base; font-weight:700; color:$dk-text-primary; }
+.friend-stats { display:flex; flex-direction:column; align-items:center; gap:2rpx; }
+.stats-rate { font-size:$dk-font-base; font-weight:800; color:$dk-brand; }
+.chevron { font-size:36rpx; color:#C8CFDE; }
+
 .invite-entry {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 40rpx; border: 2rpx dashed #C8CFDE;
-  border-radius: 32rpx; gap: 12rpx; background: #FFFFFF;
+  display:flex; flex-direction:column; align-items:center; gap:12rpx;
+  padding:40rpx; border:2rpx dashed #C8CFDE; border-radius:32rpx; background:#fff;
 }
-.invite-plus { font-size: 48rpx; color: #9AA5BE; }
+.invite-plus { font-size:48rpx; color:$dk-text-disable; }
 </style>
