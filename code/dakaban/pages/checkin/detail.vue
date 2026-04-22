@@ -60,7 +60,7 @@
             </view>
             <view class="hero-chip">
               <text class="chip-icon">✅</text>
-              <text class="chip-text">完成率 {{ stats.rate }}%</text>
+              <text class="chip-text">本月完成率 {{ monthProgress }}%</text>
             </view>
           </view>
         </view>
@@ -362,10 +362,14 @@ function calcStats() {
   today.setHours(0, 0, 0, 0)
 
   // 构建记录映射 { 'itemId_date': record }
+  // ★ 必须用 parseRecordDate 解析，因为 rec.date 可能是 {seconds:xxx} 对象
   const recordMap = {}
   allRecords.forEach((rec) => {
-    const d = typeof rec.date === 'string' ? rec.date : formatDate(new Date(rec.date))
-    if (d) recordMap[`${rec.itemId || item.value._id}_${d}`] = rec
+    const d = parseRecordDate(rec.date)
+    if (d) {
+      const ds = formatDate(d)
+      recordMap[`${rec.itemId || item.value._id}_${ds}`] = rec
+    }
   })
 
   // ---- ① 累计完成次数 ----
