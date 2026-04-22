@@ -402,6 +402,7 @@ function calcStats() {
   if (createdDate) {
     const iterDate = new Date(createdDate)
     iterDate.setHours(0, 0, 0, 0)
+    iterDate.setDate(iterDate.getDate() + 1)  // 跳过创建日，从下一天开始计算
 
     // once 类型特殊处理：只检查 planDate 那一天
     if (item.value.repeatType === 'once') {
