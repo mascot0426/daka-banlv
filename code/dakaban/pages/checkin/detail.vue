@@ -392,11 +392,9 @@ function calcStats() {
   }
   // 回退策略：如果 createdAt 解析失败，用最早一条打卡记录的日期作为起始日
   if (!createdDate && allRecords.length > 0) {
-    const firstDate = typeof allRecords[0].date === 'string'
-      ? allRecords[0].date
-      : formatDate(new Date(allRecords[0].date))
-    if (firstDate) {
-      createdDate = new Date(firstDate.replace(/-/g, '/'))
+    const firstParsed = parseRecordDate(allRecords[0].date)
+    if (firstParsed) {
+      createdDate = new Date(formatDate(firstParsed).replace(/-/g, '/'))
       createdDate.setHours(0, 0, 0, 0)
     }
   }
