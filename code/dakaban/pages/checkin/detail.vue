@@ -234,6 +234,16 @@ const monthProgress = computed(() => {
  * - Date对象
  * - 云开发时间戳 { seconds: xxx }
  */
+/**
+ * 解析记录中的日期字段（兼容多种云开发时间戳格式）
+ *
+ * 支持的输入类型（与 shouldCheckinToday 保持一致）：
+ * - Date 实例 → 直接返回
+ * - string → 尝试 YYYY-MM-DD 格式解析
+ * - number（纯毫秒戳，如 Date.now() 输出）→ 转 Date
+ * - { seconds: xxx } / { _seconds: xxx } → Unix 秒时间戳
+ * - { toDate() } → 云开发 Date 类型
+ */
 function parseRecordDate(dateVal) {
   if (!dateVal) return null
   if (dateVal instanceof Date) return dateVal
@@ -242,8 +252,17 @@ function parseRecordDate(dateVal) {
     const parsed = new Date(dateVal.replace(/-/g, '/'))
     return isNaN(parsed.getTime()) ? null : parsed
   }
-  if (typeof dateVal === 'object' && dateVal.seconds) {
-    return new Date(dateVal.seconds * 1000)
+  if (typeof dateVal === 'number') {
+    // Date.now() 写入的纯数字时间戳（如 1744089600000）
+    const d = new Date(dateVal)
+    return isNaN(d.getTime()) ? null : d
+  }
+  if (typeof dateVal === 'object') {
+    // Unix 秒时间戳 { seconds: xxx } / { _seconds: xxx }
+    const ts = dateVal.seconds || dateVal._seconds
+    if (ts) return new Date(ts * 1000)
+    // 云开发 Date 类型自带 toDate 方法
+    if (typeof dateVal.toDate === 'function') return dateVal.toDate()
   }
   return null
 }
@@ -363,27 +382,41 @@ function calcStats() {
   })
 
   // 遍历从创建日到今天，逐天计算应打/实打/缺卡
+  let createdDate = null
+
+  // 优先使用事项的 createdAt 字段
   if (item.value.createdAt) {
-    const createdDate = parseRecordDate(item.value.createdAt)
-    if (createdDate) {
-      const iterDate = new Date(createdDate)
-      iterDate.setHours(0, 0, 0, 0)
-      // 从创建当天开始检查（含创建日）
-      while (iterDate <= today) {
-        const dayStr = formatDate(iterDate)
-        // 判断这天是否应该打卡
-        const shouldDue = shouldCheckinToday(item.value, dayStr)
-        if (shouldDue) {
-          dueTotal += 1
-          const hasRecord = recordMap[`${item.value._id}_${dayStr}`]
-          if (hasRecord) {
-            doneCount += 1
-          } else {
-            missedDays += 1
-          }
+    createdDate = parseRecordDate(item.value.createdAt)
+  }
+  // 回退策略：如果 createdAt 解析失败，用最早一条打卡记录的日期作为起始日
+  if (!createdDate && allRecords.length > 0) {
+    const firstDate = typeof allRecords[0].date === 'string'
+      ? allRecords[0].date
+      : formatDate(new Date(allRecords[0].date))
+    if (firstDate) {
+      createdDate = new Date(firstDate.replace(/-/g, '/'))
+      createdDate.setHours(0, 0, 0, 0)
+    }
+  }
+
+  if (createdDate) {
+    const iterDate = new Date(createdDate)
+    iterDate.setHours(0, 0, 0, 0)
+    // 从创建当天开始检查（含创建日）
+    while (iterDate <= today) {
+      const dayStr = formatDate(iterDate)
+      // 判断这天是否应该打卡
+      const shouldDue = shouldCheckinToday(item.value, dayStr)
+      if (shouldDue) {
+        dueTotal += 1
+        const hasRecord = recordMap[`${item.value._id}_${dayStr}`]
+        if (hasRecord) {
+          doneCount += 1
+        } else {
+          missedDays += 1
         }
-        iterDate.setDate(iterDate.getDate() + 1)
       }
+      iterDate.setDate(iterDate.getDate() + 1)
     }
   }
 
@@ -402,7 +435,8 @@ function calcStats() {
   }
 
   // ---- ⑥ 完成率 = 已完成应打天数 / 应打总天数 × 100% ----
-  stats.value.rate = dueTotal > 0 ? Math.round((doneCount / dueTotal) * 100) : 100
+  // 无法计算（无应打日）时默认0%，而非100%
+  stats.value.rate = dueTotal > 0 ? Math.round((doneCount / dueTotal) * 100) : 0
 }
 
 /**

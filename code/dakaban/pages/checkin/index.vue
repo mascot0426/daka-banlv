@@ -756,6 +756,7 @@ onShow(() => {
   background-color: $dk-bg;
   box-sizing: border-box;
   overflow: hidden;              /* ★ 防止内容溢出页面 */
+}
 
 /* ========== ① 顶部导航栏（★ 双行：居中标题行 + 左标题+右按钮行）========== */
 .top-nav {
