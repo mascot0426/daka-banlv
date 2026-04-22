@@ -156,7 +156,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { formatDate, repeatText, shouldCheckinToday, dateOffset } from '@/utils/checkin-utils.js'
 
 // ---- 数据库引用 ----
@@ -167,6 +167,7 @@ const _ = db.command
 const item = ref({})
 const records = ref([])
 const statusBarHeight = ref(0)
+const currentItemId = ref('')
 
 // 统计数据
 const stats = ref({
@@ -270,6 +271,9 @@ function parseRecordDate(dateVal) {
 // ======================== 数据加载 ========================
 
 async function loadItemDetail(id) {
+  if (!id) return
+  currentItemId.value = id
+
   try {
     uni.showLoading({ title: '加载中' })
 
@@ -350,7 +354,7 @@ async function loadAllRecords(itemId) {
   records.value = allRecords
 }
 
-/** 计算所有统计数据（v7 修正版 — 修复连续天数/完成率/逾期） */
+/** 计算所有统计数据（v8 修正版 — 分 repeatType 策略 + 当天不计逾期） */
 function calcStats() {
   const allRecords = records.value
   const todayStr = formatDate(new Date())
@@ -371,17 +375,11 @@ function calcStats() {
   stats.value.consecutive = calcConsecutiveDaysV2(item.value, recordMap, todayStr)
 
   // ---- ③ 应打卡总次数 / 已完成 / 缺卡 / 逾期 ----
-  let dueTotal = 0   // 从创建到今天应该打卡的总天数
+  let dueTotal = 0   // 从创建到昨天应该打卡的总天数
   let doneCount = 0   // 应打日中实际完成的天数
   let missedDays = 0  // 应打未打的天数（逾期）
-  let makeupCount = 0 // 补打卡记录数
 
-  // 统计补打卡
-  allRecords.forEach((rec) => {
-    if (rec.isMakeup) makeupCount += 1
-  })
-
-  // 遍历从创建日到今天，逐天计算应打/实打/缺卡
+  // 遍历从创建日到昨天（不含今天），逐天计算应打/实打/缺卡
   let createdDate = null
 
   // 优先使用事项的 createdAt 字段
@@ -402,40 +400,55 @@ function calcStats() {
   if (createdDate) {
     const iterDate = new Date(createdDate)
     iterDate.setHours(0, 0, 0, 0)
-    // 从创建当天开始检查（含创建日）
-    while (iterDate <= today) {
-      const dayStr = formatDate(iterDate)
-      // 判断这天是否应该打卡
-      const shouldDue = shouldCheckinToday(item.value, dayStr)
-      if (shouldDue) {
-        dueTotal += 1
-        const hasRecord = recordMap[`${item.value._id}_${dayStr}`]
+
+    // once 类型特殊处理：只检查 planDate 那一天
+    if (item.value.repeatType === 'once') {
+      const planDate = item.value.planDate || formatDate(createdDate)
+      if (planDate) {
+        const hasRecord = recordMap[`${item.value._id}_${planDate}`]
+        dueTotal = 1
         if (hasRecord) {
-          doneCount += 1
-        } else {
-          missedDays += 1
+          doneCount = 1
+        } else if (planDate < todayStr) {
+          // planDate 已过且无记录 → 逾期1次
+          missedDays = 1
         }
       }
-      iterDate.setDate(iterDate.getDate() + 1)
+    } else {
+      // daily / weekly / monthly：从创建日到昨天逐天遍历
+      while (iterDate < today) {
+        const dayStr = formatDate(iterDate)
+        const shouldDue = shouldCheckinToday(item.value, dayStr)
+        if (shouldDue) {
+          dueTotal += 1
+          const hasRecord = recordMap[`${item.value._id}_${dayStr}`]
+          if (hasRecord) {
+            doneCount += 1
+          } else {
+            missedDays += 1
+          }
+        }
+        iterDate.setDate(iterDate.getDate() + 1)
+      }
     }
   }
 
-  // ---- ④ 逾期次数 = 补打卡数 + 应打未打缺卡数 ----
-  stats.value.overdue = makeupCount + missedDays
+  // ---- ④ 逾期次数 = 应打未打缺卡数（补打卡已计入 doneCount，不重复计算）----
+  stats.value.overdue = missedDays
 
-  // ---- ⑤ 剩余次数 ----
+  // ---- ⑤ 剩余次数（分场景语义）----
   if (item.value.targetCount && item.value.targetCount > 0) {
+    // 有目标：剩余 = 目标总次数 - 累计完成
     stats.value.remaining = Math.max(0, item.value.targetCount - stats.value.totalDone)
-  } else if (dueTotal > 0) {
-    // 用应打总数 - 已完成作为参考剩余
-    stats.value.remaining = Math.max(0, dueTotal - doneCount)
+  } else if (item.value.repeatType === 'once') {
+    // 仅一次：剩余 = 0（已完成）或 1（未完成）
+    stats.value.remaining = doneCount > 0 ? 0 : 1
   } else {
-    const daysLeftInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate() - today.getDate()
-    stats.value.remaining = Math.max(0, daysLeftInMonth)
+    // daily/weekly/monthly 无目标：剩余显示为缺卡天数
+    stats.value.remaining = missedDays
   }
 
   // ---- ⑥ 完成率 = 已完成应打天数 / 应打总天数 × 100% ----
-  // 无法计算（无应打日）时默认0%，而非100%
   stats.value.rate = dueTotal > 0 ? Math.round((doneCount / dueTotal) * 100) : 0
 }
 
@@ -519,6 +532,13 @@ function goEdit() {
 onLoad((options) => {
   if (options && options.id) {
     loadItemDetail(options.id)
+  }
+})
+
+onShow(() => {
+  // 从首页打卡/补打操作后返回，自动刷新数据
+  if (currentItemId.value) {
+    loadItemDetail(currentItemId.value)
   }
 })
 </script>
