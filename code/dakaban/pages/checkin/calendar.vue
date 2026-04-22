@@ -320,18 +320,40 @@ async function loadMonthData() {
   const end = getDateKey(currentYear.value, currentMonth.value, endDay)
 
   try {
-    const [itemsRes, recordsRes] = await Promise.all([
-      db.collection('checkin_items').where({ status: 'active' }).get(),
-      db.collection('checkin_records').where({
-        date: _.gte(start).and(_.lte(end))
-      }).get()
+    // ★ 小程序端 limit 上限为 20，必须分页循环取全部数据
+    const PAGE_SIZE = 20
+    async function fetchAll(collection, query, orderByField) {
+      let allData = []
+      let skip = 0
+      let hasMore = true
+      while (hasMore) {
+        let q = collection.where(query).skip(skip).limit(PAGE_SIZE)
+        if (orderByField) q = q.orderBy(orderByField, 'desc')
+        const res = await q.get()
+        const data = res.data || []
+        allData = allData.concat(data)
+        if (data.length < PAGE_SIZE) {
+          hasMore = false
+        } else {
+          skip += PAGE_SIZE
+        }
+      }
+      return allData
+    }
+
+    const itemsCondition = { status: 'active' }
+    const recordsCondition = { date: _.gte(start).and(_.lte(end)) }
+
+    const [allItemData, allRecordData] = await Promise.all([
+      fetchAll(db.collection('checkin_items'), itemsCondition),
+      fetchAll(db.collection('checkin_records'), recordsCondition)
     ])
 
-    itemList.value = itemsRes.data || []
+    itemList.value = allItemData
 
     // 构建记录映射
     const map = {}
-    ;(recordsRes.data || []).forEach((rec) => {
+    allRecordData.forEach((rec) => {
       if (!rec.itemId || !rec.date) return
       map[`${rec.itemId}_${rec.date}`] = rec
     })

@@ -196,19 +196,38 @@ async function loadData() {
     const start = dateOffset(todayStr, -30)
     const end = dateOffset(todayStr, 7)
 
-    const itemsQ = db.collection('checkin_items')
-      .where(_.or([{ status: 'active' }, { status: 'paused' }]))
-    const recordsQ = db.collection('checkin_records')
-      .where({ date: _.gte(start).and(_.lte(end)) })
+    // ★ 小程序端 limit 上限为 20，必须分页循环取全部数据
+    const PAGE_SIZE = 20
+    async function fetchAll(collection, query, orderByField) {
+      let allData = []
+      let skip = 0
+      let hasMore = true
+      while (hasMore) {
+        let q = collection.where(query).skip(skip).limit(PAGE_SIZE)
+        if (orderByField) q = q.orderBy(orderByField, 'desc')
+        const res = await q.get({ fetchOptions: { fromCache: false } })
+        const data = res.data || []
+        allData = allData.concat(data)
+        if (data.length < PAGE_SIZE) {
+          hasMore = false
+        } else {
+          skip += PAGE_SIZE
+        }
+      }
+      return allData
+    }
 
-    const [itemRes, recordRes] = await Promise.all([
-      itemsQ.get({ fetchOptions: { fromCache: false } }),
-      recordsQ.orderBy('checkedAt', 'desc').get({ fetchOptions: { fromCache: false } })
+    const itemsCondition = _.or([{ status: 'active' }, { status: 'paused' }])
+    const recordsCondition = { date: _.gte(start).and(_.lte(end)) }
+
+    const [allItemData, allRecordData] = await Promise.all([
+      fetchAll(db.collection('checkin_items'), itemsCondition),
+      fetchAll(db.collection('checkin_records'), recordsCondition, 'checkedAt')
     ])
 
-    const finalRecords = recordRes.data || []
+    const finalRecords = allRecordData
 
-    allItems.value = itemRes.data || []
+    allItems.value = allItemData
 
     // ★ 诊断日志：确认拉到的数据量和每周类型事项
     console.log('📊 [index] 数据加载完成:')
@@ -433,7 +452,7 @@ function rebuildList() {
 
   stats.value = { done, total: done + todo + overdue, overdue }
   itemsView.value = list
-  console.log(`📋 [index] rebuildList 完成: itemsView.length = ${list.length}, listHeight = ${listHeight.value}`)
+  console.log(`📋 [index] rebuildList 完成: itemsView.length = ${list.length}`)
 }
 
 // ======================== 交互操作 ========================
